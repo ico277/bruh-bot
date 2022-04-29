@@ -1,0 +1,24 @@
+{
+  "name": "bruh-bot",
+  "version": "1.0.0",
+  "description": "discord bot for the linux space discord server",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "bash ./start.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ico277/bruh-bot.git"
+  },
+  "author": "ico277",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ico277/bruh-bot/issues"
+  },
+  "homepage": "https://github.com/ico277/bruh-bot#readme",
+  "dependencies": {
+    "@discordjs/rest": "^0.2.0-canary.0",
+    "discord-api-types": "^0.26.1",
+    "discord.js": "^13.6.0"
+  }
+}
