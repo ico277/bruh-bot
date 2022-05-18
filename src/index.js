@@ -32,7 +32,7 @@ console.log(`Successfully loaded ${warns_file}!`);
 
 const fucks_file = __dirname + '/../warns/fucks.json';
 let fucks = {};
-console.log(`Loading ${fucks}...`);
+console.log(`Loading ${fucks_file}...`);
 if (fs.existsSync(fucks_file)) {
     console.log(`Reading ${fucks_file}...`);
     let bytes = fs.readFileSync(fucks_file, 'ascii');
@@ -327,57 +327,62 @@ client.on('interactionCreate', async interaction => {
             console.error(err);
         }
     } else if (interaction.commandName === 'fuckyou') {
-        if (interaction.user.id === interaction.guild.fetchOwner().id || interaction.user.id === "607196862017044491") {
-            let member = interaction.options.getMember('member', true);
-
-            if (Array.isArray(fucks[interaction.guildId])) {
-                if (fucks[interaction.guildId].includes(member.user.id)) {
-                    await interaction.reply("This member already is fucked")
-                } else {
-                    fucks[interaction.guildId].push(member.user.id);
-                }
-            } else {
-                fucks[interaction.guildId] = [member.user.id];
+        if (interaction.user.id !== interaction.guild.fetchOwner().id) {
+            if (interaction.user.id !== "607196862017044491") {
+                await interaction.reply("You do not have enough permission to use this command!");
+                return
             }
-            if (!interaction.replied)
-                await interaction.reply(`Successfully fucked ${member.nick ? member.nickname : member.user.tag} >:)`);
+        }
 
-            try {
-                console.log(`Saving ${fucks_file}...`);
-                fs.writeFileSync(fucks_file, JSON.stringify(fucks, undefined, 4), { encoding: 'ascii' });
-                console.log(`Successfully saved ${fucks_file}!`);
-            } catch (err) {
-                console.error(`Could not write to ${fucks_file}!`);
-                console.error(err);
+        let member = interaction.options.getMember('member', true);
+
+        if (Array.isArray(fucks[interaction.guildId])) {
+            if (fucks[interaction.guildId].includes(member.user.id)) {
+                await interaction.reply("This member already is fucked")
+            } else {
+                fucks[interaction.guildId].push(member.user.id);
             }
         } else {
-            await interaction.reply("You do not have enough permission to use this command!")
+            fucks[interaction.guildId] = [member.user.id];
+        }
+        if (!interaction.replied)
+            await interaction.reply(`Successfully fucked ${member.nick ? member.nickname : member.user.tag} >:)`);
+
+        try {
+            console.log(`Saving ${fucks_file}...`);
+            fs.writeFileSync(fucks_file, JSON.stringify(fucks, undefined, 4), { encoding: 'ascii' });
+            console.log(`Successfully saved ${fucks_file}!`);
+        } catch (err) {
+            console.error(`Could not write to ${fucks_file}!`);
+            console.error(err);
         }
     } else if (interaction.commandName === "unfuckyou") {
-        if (interaction.user.id === interaction.guild.fetchOwner().id || interaction.user.id === "607196862017044491") {
-            let member = interaction.options.getMember('member', true);
-
-            if (Array.isArray(fucks[interaction.guildId])) {
-                if (fucks[interaction.guildId].includes(member.user.id)) {
-                    let index = fucks[interaction.guildId].indexOf(member.user.id);
-                    fucks[interaction.guildId].splice(index, 1);
-                } else {
-                    await interaction.reply("This member isn't fucked")
-                }
+        if (interaction.user.id !== interaction.guild.fetchOwner().id) {
+            if (interaction.user.id !== "607196862017044491") {
+                await interaction.reply("You do not have enough permission to use this command!");
+                return
             }
-            if (!interaction.replied)
-                await interaction.reply(`Successfully unfucked ${member.nick ? member.nickname : member.user.tag} >:)`);
+        }
+        let member = interaction.options.getMember('member', true);
 
-            try {
-                console.log(`Saving ${fucks_file}...`);
-                fs.writeFileSync(fucks_file, JSON.stringify(fucks, undefined, 4), { encoding: 'ascii' });
-                console.log(`Successfully saved ${fucks_file}!`);
-            } catch (err) {
-                console.error(`Could not write to ${fucks_file}!`);
-                console.error(err);
+        if (Array.isArray(fucks[interaction.guildId])) {
+            if (fucks[interaction.guildId].includes(member.user.id)) {
+                let index = fucks[interaction.guildId].indexOf(member.user.id);
+                fucks[interaction.guildId].splice(index, 1);
+            } else {
+                await interaction.reply("This member isn't fucked")
             }
-        } else {
-            await interaction.reply("You do not have enough permission to use this command!")
+        }
+        if (!interaction.replied)
+            await interaction.reply(`Successfully unfucked ${member.nick ? member.nickname : member.user.tag} >:)`);
+
+        try {
+            console.log(`Saving ${fucks_file}...`);
+            fs.writeFileSync(fucks_file, JSON.stringify(fucks, undefined, 4), { encoding: 'ascii' });
+            console.log(`Successfully saved ${fucks_file}!`);
+        } catch (err) {
+            console.error(`Could not write to ${fucks_file}!`);
+            console.error(err);
         }
     }
 });
