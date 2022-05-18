@@ -110,14 +110,23 @@ client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
+// fucks
 client.on('messageCreate', async (message) => {
-    // fucks
-    if (fucks[message.guild.id].includes(message.author.id)
-        && (message.author.id !== "607196862017044491" || message.author.id !== await message.guild.fetchOwner().id)
-        && message.author.id !== client.user.id) {
-        if (message.deletable)
-            message.delete();
-    }
+    // if guild doesn't exist in config or is not an array (for some reason), return
+    if (!Array.isArray(fucks[message.guild.id])) return;
+    // if message author is not in the array, return
+    if (!fucks[message.guild.id].includes(message.author.id)) return;
+    // if message author is bot owner, return
+    if (message.author.id === "607196862017044491") return;
+    // if message author is the bot itself, return
+    if (message.author.id === client.user.id) return;
+    // if the message author is the guild owner, return
+    if (message.author.id === await message.guild.fetchOwner().id) return;
+    // if the message isn't deletable, return
+    if (!message.deletable) return;
+
+    // finally, delete the message
+    message.delete();
 });
 
 client.on('interactionCreate', async interaction => {
