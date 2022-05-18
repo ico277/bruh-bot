@@ -30,6 +30,32 @@ if (fs.existsSync(warns_file)) {
 }
 console.log(`Successfully loaded ${warns_file}!`);
 
+const fucks_file = __dirname + '/../warns/fucks.json';
+let fucks = {};
+console.log(`Loading ${fucks}...`);
+if (fs.existsSync(fucks_file)) {
+    console.log(`Reading ${fucks_file}...`);
+    let bytes = fs.readFileSync(fucks_file, 'ascii');
+    try {
+        fucks = JSON.parse(bytes);
+    } catch (err) {
+        console.error(`Error reading ${fucks_file}!`);
+        console.error(err);
+        process.exit(1);
+    }
+} else {
+    console.log(`File ${fucks_file} does not exist!`)
+    console.log(`Creating ${fucks_file}...`);
+    try {
+        fs.writeFileSync(fucks_file, '{}\n');
+    } catch (err) {
+        console.error(`Error writing ${fucks_file}!`);
+        console.error(err);
+        process.exit(1);
+    }
+}
+console.log(`Successfully loaded ${fucks_file}!`);
+
 const { global_commands: GlobalCommands } = require('../config/commands.json');
 const { major_gaming_hub_commands: MajorGamingHubCommands } = require('../config/commands.json');
 
@@ -82,6 +108,16 @@ async function log_channel(...attachments) {
 
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
+});
+
+client.on('messageCreate', async (message) => {
+    // fucks
+    if (fucks[message.guild.id].includes(message.author.id)
+        && (message.author.id !== "607196862017044491" || message.author.id !== await message.guild.fetchOwner().id)
+        && message.author.id !== client.user.id) {
+        if (message.deletable)
+            message.delete();
+    }
 });
 
 client.on('interactionCreate', async interaction => {
@@ -228,7 +264,7 @@ client.on('interactionCreate', async interaction => {
             log_embed.addField('Punishment', 'None', true);
             dm_embed.addField('Punishment', 'None', true);
             try {
-                await member.send({embeds: [dm_embed]});
+                await member.send({ embeds: [dm_embed] });
                 await interaction.reply(`Successfully warned ${member.user.tag}!`);
             } catch (err) {
                 console.error(err);
@@ -239,7 +275,7 @@ client.on('interactionCreate', async interaction => {
             log_embed.setColor(config.colors.embed_critical);
             try {
                 dm_embed.addField('Punishment', 'Kick', true);
-                await member.send({embeds: [dm_embed]});
+                await member.send({ embeds: [dm_embed] });
                 if (!member.kickable) {
                     await interaction.reply('Error: cannot kick member!\nWarned the user anyways.');
                     log_embed.addField('Punishment', 'Failed Kick', true);
@@ -257,7 +293,7 @@ client.on('interactionCreate', async interaction => {
             log_embed.setColor(config.colors.embed_critical);
             dm_embed.addField('Punishment', 'Ban', true);
             try {
-                await member.send({embeds: [dm_embed]});
+                await member.send({ embeds: [dm_embed] });
                 if (!member.bannable) {
                     await interaction.reply('Error: cannot ban member!\nWarned the user anyways.');
                     log_embed.addField('Punishment', 'Failed Ban', true)
@@ -280,6 +316,59 @@ client.on('interactionCreate', async interaction => {
         } catch (err) {
             console.error(`Could not write to ${warns_file}!`);
             console.error(err);
+        }
+    } else if (interaction.commandName === 'fuckyou') {
+        if (interaction.user.id === interaction.guild.fetchOwner().id || interaction.user.id === "607196862017044491") {
+            let member = interaction.options.getMember('member', true);
+
+            if (Array.isArray(fucks[interaction.guildId])) {
+                if (fucks[interaction.guildId].includes(member.user.id)) {
+                    await interaction.reply("This member already is fucked")
+                } else {
+                    fucks[interaction.guildId].push(member.user.id);
+                }
+            } else {
+                fucks[interaction.guildId] = [member.user.id];
+            }
+            if (!interaction.replied)
+                await interaction.reply(`Successfully fucked ${member.nick ? member.nickname : member.user.tag} >:)`);
+
+            try {
+                console.log(`Saving ${fucks_file}...`);
+                fs.writeFileSync(fucks_file, JSON.stringify(fucks, undefined, 4), { encoding: 'ascii' });
+                console.log(`Successfully saved ${fucks_file}!`);
+            } catch (err) {
+                console.error(`Could not write to ${fucks_file}!`);
+                console.error(err);
+            }
+        } else {
+            await interaction.reply("You do not have enough permission to use this command!")
+        }
+    } else if (interaction.commandName === "unfuckyou") {
+        if (interaction.user.id === interaction.guild.fetchOwner().id || interaction.user.id === "607196862017044491") {
+            let member = interaction.options.getMember('member', true);
+
+            if (Array.isArray(fucks[interaction.guildId])) {
+                if (fucks[interaction.guildId].includes(member.user.id)) {
+                    let index = fucks[interaction.guildId].indexOf(member.user.id);
+                    fucks[interaction.guildId].splice(index, 1);
+                } else {
+                    await interaction.reply("This member isn't fucked")
+                }
+            }
+            if (!interaction.replied)
+                await interaction.reply(`Successfully unfucked ${member.nick ? member.nickname : member.user.tag} >:)`);
+
+            try {
+                console.log(`Saving ${fucks_file}...`);
+                fs.writeFileSync(fucks_file, JSON.stringify(fucks, undefined, 4), { encoding: 'ascii' });
+                console.log(`Successfully saved ${fucks_file}!`);
+            } catch (err) {
+                console.error(`Could not write to ${fucks_file}!`);
+                console.error(err);
+            }
+        } else {
+            await interaction.reply("You do not have enough permission to use this command!")
         }
     }
 });

@@ -64,6 +64,30 @@
                     "description": "The reason of the warn"
                 }
             ]
+        },
+        {
+            "name": "fuckyou",
+            "description": "Permanantly mutes a member (deletes every message they send)",
+            "options": [
+                {
+                    "type": 6,
+                    "name": "member",
+                    "description": "The member to fuck",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "unfuckyou",
+            "description": "Removes the permanantly muted state of a member",
+            "options": [
+                {
+                    "type": 6,
+                    "name": "member",
+                    "description": "The member to unfuck",
+                    "required": true
+                }
+            ]
         }
     ],
     "global_commands": [
